@@ -1,0 +1,7 @@
+<p-menubar [model]="items">
+  <ng-template #end>
+    <div class="d-flex">
+      <p-button [icon]="themeService.isDarkMode$.getValue() ? 'pi pi-moon' : 'pi pi-sun'" (onClick)="themeService.toggleTheme()"></p-button>
+    </div>
+  </ng-template>
+</p-menubar>

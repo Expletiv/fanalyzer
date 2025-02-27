@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { Button } from 'primeng/button';
+import { MenubarComponent } from './menubar/menubar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [
-    Button
-  ],
   templateUrl: './app.component.html',
+  imports: [
+    MenubarComponent
+  ],
   styleUrl: './app.component.css'
 })
 export class AppComponent {
