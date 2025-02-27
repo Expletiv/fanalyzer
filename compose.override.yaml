@@ -1,0 +1,10 @@
+# Development environment override
+services:
+  web:
+    build:
+      context: .
+      target: app_dev
+    volumes:
+      - ./:/app
+    ports:
+      - "4200:4200"

@@ -1,0 +1,4 @@
+{$SERVER_NAME:localhost} {
+    root * /usr/share/caddy/browser
+    file_server
+}
