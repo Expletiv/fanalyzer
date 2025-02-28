@@ -4,6 +4,7 @@ import { MenuItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { ThemeService } from '../theme.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-menubar',
@@ -19,12 +20,19 @@ export class MenubarComponent implements OnInit {
 
   protected items: MenuItem[] | undefined;
 
-  protected themeService = inject(ThemeService);
+  protected readonly themeService = inject(ThemeService);
+
+  private readonly router = inject(Router);
 
   ngOnInit() {
     this.items = [
       {
-        label: 'Overview',
+        label: 'Fanalyzer',
+        command: () => this.router.navigate(['/'])
+      },
+      {
+        label: 'Other',
+        command: () => this.router.navigate(['/other'])
       }
     ]
   }
