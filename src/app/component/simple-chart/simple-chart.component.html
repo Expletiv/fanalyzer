@@ -1,0 +1,8 @@
+<p-card styleClass="mt-3">
+  <div class="chart-container">
+    <div [class.overlay]="isLoading()" [class.d-none]="!isLoading()">
+      <p-progress-bar mode="indeterminate" [style]="{ height: '6px' }"></p-progress-bar>
+    </div>
+    <p-chart type="line" [data]="data()" [options]="options" [responsive]="true" height="500"></p-chart>
+  </div>
+</p-card>
