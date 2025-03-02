@@ -17,6 +17,6 @@ FROM caddy:latest AS app_prod
 
 COPY Caddyfile /etc/caddy/Caddyfile
 RUN rm -rf /usr/share/caddy/*
-COPY --from=prod_builder /app/dist/satisfactory-tools-frontend /usr/share/caddy
+COPY --from=prod_builder /app/dist/fanalyzer /usr/share/caddy
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
 

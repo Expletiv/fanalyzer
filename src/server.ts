@@ -1,57 +1,94 @@
-import { APP_BASE_HREF } from '@angular/common';
-import { CommonEngine, isMainModule } from '@angular/ssr/node';
+import {
+  AngularNodeAppEngine,
+  createNodeRequestHandler,
+  isMainModule,
+  writeResponseToNodeResponse
+} from '@angular/ssr/node';
 import express from 'express';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import bootstrap from './main.server';
+import { match } from 'ts-pattern';
+import { YahooFinanceMethod } from './app/types/yahoo-finance';
+import { isDevMode } from '@angular/core';
+import yahooFinance from 'yahoo-finance2';
 
-const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-const browserDistFolder = resolve(serverDistFolder, '../browser');
-const indexHtml = join(serverDistFolder, 'index.server.html');
+export function app(): express.Express {
+  const server = express();
+  // Parse JSON request bodies
+  server.use(express.json());
 
-const app = express();
-const commonEngine = new CommonEngine();
+  const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+  const browserDistFolder = resolve(serverDistFolder, '../browser');
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+  // SSR in v19 via AngularNodeAppEngine -> https://github.com/JeanMeche/ssr-v19/tree/main
+  const angularNodeAppEngine = new AngularNodeAppEngine();
 
-/**
- * Serve static files from /browser
- */
-app.get(
-  '**',
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: 'index.html'
-  }),
-);
+  /**
+   * API endpoint for Yahoo Finance data.
+   */
+  server.post('/api/yahoo-finance', async (req, res) => {
+    const method: YahooFinanceMethod = req.body.method;
+    const args = req.body.args;
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
-app.get('**', (req, res, next) => {
-  const { protocol, originalUrl, baseUrl, headers } = req;
+    try {
+      const result = await match(method)
+        .with('search', () => yahooFinance.search(...(args as Parameters<typeof yahooFinance.search>)))
+        .with('chart', () => yahooFinance.chart(...(args as Parameters<typeof yahooFinance.chart>)))
+        .otherwise(() => Promise.reject(new Error(`Unknown method: ${method}`)));
 
-  commonEngine
-    .render({
-      bootstrap,
-      documentFilePath: indexHtml,
-      url: `${protocol}://${headers.host}${originalUrl}`,
-      publicPath: browserDistFolder,
-      providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
-    })
-    .then((html) => res.send(html))
-    .catch((err) => next(err));
-});
+      res.json(result);
+    } catch (error) {
+      console.error("Error caught:", error);
+      res.status(500);
+
+      if (!isDevMode()) {
+        res.json({
+          success: false,
+          message: "An error occurred while processing your request",
+        });
+
+        return;
+      }
+
+      res.json({
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+    }
+  });
+
+  /**
+   * Serve static files from /browser
+   */
+  server.get(
+    '**',
+    express.static(browserDistFolder, {
+      maxAge: '1y',
+      index: 'index.html'
+    }),
+  );
+
+  /**
+   * Handle all other requests by rendering the Angular application.
+   */
+  server.get('**', (req, res, next) => {
+    angularNodeAppEngine
+      .handle(req)
+      .then((response) => {
+        if (response) {
+          writeResponseToNodeResponse(response, res);
+        } else {
+          next();
+        }
+      })
+      .catch(next)
+  });
+
+  return server;
+}
+
+const server = app();
 
 /**
  * Start the server if this module is the main entry point.
@@ -59,9 +96,9 @@ app.get('**', (req, res, next) => {
  */
 if (isMainModule(import.meta.url)) {
   const port = process.env['PORT'] || 4000;
-  app.listen(port, () => {
+  server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
 }
 
-export default app;
+export const reqHandler = createNodeRequestHandler(server);

@@ -3,11 +3,12 @@ import { Menubar } from 'primeng/menubar';
 import { MenuItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
-import { ThemeService } from '../theme.service';
+import { ThemeService } from '../../service/theme.service';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-menubar',
+  standalone: true,
   imports: [
     Menubar,
     FormsModule,

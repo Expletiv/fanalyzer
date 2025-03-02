@@ -5,6 +5,7 @@ import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-overview-menu',
+  standalone: true,
   imports: [
     Fieldset,
     PanelMenu
