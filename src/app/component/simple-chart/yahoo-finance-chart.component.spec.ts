@@ -1,21 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SimpleChartComponent } from './simple-chart.component';
+import { YahooFinanceChartComponent } from './yahoo-finance-chart.component';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('SimpleChartComponent', () => {
-  let component: SimpleChartComponent;
-  let fixture: ComponentFixture<SimpleChartComponent>;
+  let component: YahooFinanceChartComponent;
+  let fixture: ComponentFixture<YahooFinanceChartComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SimpleChartComponent],
+      imports: [YahooFinanceChartComponent],
       providers: [provideHttpClient()]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SimpleChartComponent);
+    fixture = TestBed.createComponent(YahooFinanceChartComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('symbol', 'AAPL');
     fixture.detectChanges();
   });
 

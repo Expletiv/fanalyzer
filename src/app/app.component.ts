@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MenubarComponent } from './component/menubar/menubar.component';
 import { OverviewMenuComponent } from './component/overview-menu/overview-menu.component';
-import { SimpleChartComponent } from './component/simple-chart/simple-chart.component';
+import { YahooFinanceChartComponent } from './component/simple-chart/yahoo-finance-chart.component';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +10,7 @@ import { SimpleChartComponent } from './component/simple-chart/simple-chart.comp
   imports: [
     MenubarComponent,
     OverviewMenuComponent,
-    SimpleChartComponent,
+    YahooFinanceChartComponent,
   ],
   styleUrl: './app.component.css'
 })
