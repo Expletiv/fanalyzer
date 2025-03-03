@@ -1,5 +1,5 @@
 import { inject, Injectable, PLATFORM_ID, REQUEST } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 @Injectable({
@@ -17,7 +17,12 @@ export class ThemeService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       // Initialize from existing DOM class
-      this.isDarkMode$.next(document.querySelector('html')?.classList.contains(this.darkTheme) ?? false);
+      const initialMode = document.querySelector('html')?.classList.contains(this.darkTheme) ?? false;
+      this.isDarkMode$.next(initialMode);
+
+      this.isDarkMode$
+        .pipe(distinctUntilChanged())
+        .subscribe(newMode => this.storePreference(newMode));
     }
     if (isPlatformServer(this.platformId) && this.request) {
       // Initialize from cookie
@@ -29,13 +34,14 @@ export class ThemeService {
   }
 
   toggleTheme() {
-    const newMode = !this.isDarkMode$.value;
-    this.isDarkMode$.next(newMode);
+    this.isDarkMode$.next(!this.isDarkMode$.getValue());
+  }
 
+  private storePreference(newMode: boolean) {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem(this.storageKey, String(newMode));
       document.querySelector('html')?.classList.toggle(this.darkTheme, newMode);
-      document.cookie = `${this.storageKey}=${newMode}; path=/;`;
+      document.cookie = `${this.storageKey}=${newMode}; path=/; max-age=31536000;`;
     }
   }
 }
