@@ -1,4 +1,7 @@
-<p-menubar [model]="items">
+@if (false) {
+  <!--  We have to skip hydration until this issue is fixed: https://github.com/angular/angular/issues/50543-->
+}
+<p-menubar [model]="items" ngSkipHydration>
   <ng-template pTemplate="end">
     <div class="d-flex">
       <p-button
