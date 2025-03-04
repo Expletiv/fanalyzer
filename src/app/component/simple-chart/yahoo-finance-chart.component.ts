@@ -7,7 +7,6 @@ import {
   model,
   PLATFORM_ID,
   signal,
-  untracked,
   WritableSignal
 } from '@angular/core';
 import { UIChart } from 'primeng/chart';
@@ -33,7 +32,7 @@ import { match } from 'ts-pattern';
     Tabs,
     TabList,
     Tab,
-    Skeleton
+    Skeleton,
   ],
   templateUrl: './yahoo-finance-chart.component.html',
   styleUrl: './yahoo-finance-chart.component.css'
@@ -82,8 +81,15 @@ export class YahooFinanceChartComponent {
       x: {
         // timeseries instead of time, so that the data is not interpolated (e.g. for weekends)
         type: 'timeseries',
+        time: {
+          tooltipFormat: 'yyyy-MM-dd HH:mm',
+          displayFormats: {
+            hour: 'HH:mm',
+          },
+        },
         ticks: {
           autoSkipPadding: 50,
+          maxRotation: 0,
         }
       },
       y: {
@@ -138,12 +144,10 @@ export class YahooFinanceChartComponent {
                 });
                 this.initData(this.symbol(), data);
                 this.initRanges(result.meta.validRanges);
-                untracked(() => {
-                  this.options.update((opts: any) => {
-                    opts.scales.y.title.text = `Price (${result.meta.currency})`;
+                this.options.update((opts: any) => {
+                  opts.scales.y.title.text = `Price (${result.meta.currency})`;
 
-                    return opts;
-                  })
+                  return opts;
                 })
 
                 this.isLoading.set(false);
