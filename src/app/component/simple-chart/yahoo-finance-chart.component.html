@@ -1,11 +1,11 @@
 <p-card styleClass="mt-3">
   <div class="chart-container">
-    <div [class.overlay]="isLoading()" [class.d-none]="!isLoading()">
+    <div [class.overlay]="chartData.isLoading()" [class.d-none]="!chartData.isLoading()">
       <p-progress-bar mode="indeterminate" [style]="{ height: '6px' }"></p-progress-bar>
     </div>
     <p-tabs [(value)]="range">
       <p-tablist>
-        @defer (hydrate when !isLoading()) {
+        @defer (hydrate when !chartData.isLoading()) {
           @for (rangeOpt of rangeOptions(); track rangeOpt) {
             <p-tab [value]="rangeOpt">
               <span>{{ rangeOpt }}</span>

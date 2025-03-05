@@ -5,14 +5,11 @@ import {
   inject,
   input,
   model,
-  PLATFORM_ID,
-  signal,
-  WritableSignal
+  Signal,
 } from '@angular/core';
 import { UIChart } from 'primeng/chart';
-import { isPlatformBrowser } from '@angular/common';
 import { YahooFinanceService } from '../../service/yahoo-finance.service';
-import { Chart, ChartDataset, ChartOptions, registerables } from 'chart.js';
+import { ChartData, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-luxon';
 import { DateTime } from 'luxon';
 import { ProgressBar } from 'primeng/progressbar';
@@ -21,6 +18,7 @@ import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { Skeleton } from 'primeng/skeleton';
 import { YahooFinanceChartInterval, YahooFinanceChartRange } from '../../types/yahoo-finance';
 import { match } from 'ts-pattern';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-yahoo-finance-chart',
@@ -38,7 +36,6 @@ import { match } from 'ts-pattern';
   styleUrl: './yahoo-finance-chart.component.css'
 })
 export class YahooFinanceChartComponent {
-  private platformId = inject(PLATFORM_ID);
   private yahooFinance = inject(YahooFinanceService);
   protected supportedRanges = Object.values(YahooFinanceChartRange);
 
@@ -48,138 +45,119 @@ export class YahooFinanceChartComponent {
    * A date string. Set `range` to `YahooFinanceChartRange.CUSTOM` to use this.
    */
   from = model<string>(DateTime.now().toISODate());
+  private _from = computed<string>(() => {
+    const range = this.range();
+    return range === YahooFinanceChartRange.CUSTOM ? this.from() : this.computeFrom(range);
+  })
 
   /**
    * A date string. Set `range` to `YahooFinanceChartRange.CUSTOM` to use this.
    */
   to = model<string>();
+  private _to = computed<string | undefined>(() => {
+    return this.range() === YahooFinanceChartRange.CUSTOM ? this.to() : undefined;
+  })
 
   /**
-   * The interval between data points. If not specified, a suitable interval will be chosen.
+   * The interval between data points. If not defined, a suitable interval will be chosen.
    */
   interval = input<YahooFinanceChartInterval>();
-
-  _interval = computed(() => this.interval() ?? this.computeInterval(this.from(), this.to()));
+  private _interval = computed(() => this.interval() ?? this.computeInterval(this._from(), this._to()));
 
   /**
    * The range of the data to show. Defaults to `YahooFinanceChartRange.DAY`.
    */
   range = model<YahooFinanceChartRange>(YahooFinanceChartRange.ONE_DAY);
 
-  protected isLoading: WritableSignal<boolean> = signal(true);
-  protected rangeOptions: WritableSignal<YahooFinanceChartRange[]> = signal([]);
+  chartData = rxResource({
+    request: () => ({
+      symbol: this.symbol(),
+      from: this._from(),
+      to: this._to(),
+      interval: this._interval(),
+    }),
+    loader: ({request}) => {
+      return this.yahooFinance.call('chart', request.symbol, {
+        period1: request.from,
+        period2: request.to,
+        interval: request.interval,
+        return: 'array'
+      }, {validateResult: true});
+    }
+  })
 
-  protected data: WritableSignal<{
-    datasets: ChartDataset<'line', { x: number, y: number | null }[]>[]
-  }> = signal({datasets: []});
+  protected rangeOptions: Signal<YahooFinanceChartRange[]> = computed<YahooFinanceChartRange[]>(() => {
+    return this.chartData.value()?.meta.validRanges.filter((range) => {
+      return this.supportedRanges.includes(range as YahooFinanceChartRange);
+    }) as YahooFinanceChartRange[] ?? [];
+  });
 
-  protected options: WritableSignal<ChartOptions> = signal({
-    responsive: true,
-    // use the internal representation of the data (needed for data decimation)
-    parsing: false,
-    scales: {
-      x: {
-        // timeseries instead of time, so that the data is not interpolated (e.g. for weekends)
-        type: 'timeseries',
-        time: {
-          tooltipFormat: 'yyyy-MM-dd HH:mm',
-          displayFormats: {
-            hour: 'HH:mm',
+  protected data = computed<ChartData<'line', { x: number, y: number | null }[]>>(
+    () => ({
+      datasets: [{
+        label: this.symbol(),
+        data: this.chartData.value()?.quotes.map(
+          (quote) => ({
+            // chartjs uses milliseconds since epoch internally
+            x: new Date(quote.date).getTime(),
+            y: quote.close
+          })) ?? [],
+        fill: true,
+        borderColor: '#4bc0c0',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        indexAxis: 'x',
+        tension: 0,
+      }]
+    }));
+
+  protected options = computed<ChartOptions>(() => {
+    return {
+      responsive: true,
+      // use the internal representation of the data (needed for data decimation)
+      parsing: false,
+      scales: {
+        x: {
+          // timeseries instead of time, so that the data is not interpolated (e.g. for weekends)
+          type: 'timeseries',
+          time: {
+            tooltipFormat: 'yyyy-MM-dd HH:mm',
+            displayFormats: {
+              hour: 'HH:mm',
+            },
           },
+          ticks: {
+            autoSkipPadding: 50,
+            maxRotation: 0,
+          }
         },
-        ticks: {
-          autoSkipPadding: 50,
-          maxRotation: 0,
+        y: {
+          title: {
+            display: true,
+            text: `Price (${this.chartData.value()?.meta.currency})`
+          }
         }
       },
-      y: {
-        title: {
-          display: true,
-          text: 'Price'
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        decimation: {
+          // Reduce points for performance
+          enabled: true,
+          algorithm: 'lttb',
+          samples: 500,
+          threshold: 1000,
         }
-      }
-    },
-    interaction: {
-      mode: 'index',
-      intersect: false,
-    },
-    plugins: {
-      decimation: {
-        // Reduce points for performance
-        enabled: true,
-        algorithm: 'lttb',
-        samples: 500,
-        threshold: 1000,
-      }
-    },
+      },
+    }
   });
 
   constructor() {
-    if (isPlatformBrowser(this.platformId)) {
-      Chart.register(...registerables);
-
-      effect(() => {
-          this.isLoading.set(true);
-
-          const range = this.range();
-          if (range !== YahooFinanceChartRange.CUSTOM) {
-            this.from.set(this.computeFrom(range));
-            this.to.set(undefined);
-          }
-
-          this.yahooFinance.call('chart', this.symbol(), {
-            period1: this.from(),
-            period2: this.to(),
-            interval: this._interval(),
-            return: 'array'
-          }, {validateResult: true})
-            .subscribe(
-              result => {
-                const data = result.quotes.map((quote) => {
-                  return {
-                    // chartjs uses milliseconds since epoch internally
-                    x: new Date(quote.date).getTime(),
-                    y: quote.close
-                  }
-                });
-                this.initData(this.symbol(), data);
-                this.initRanges(result.meta.validRanges);
-                this.options.update((opts: any) => {
-                  opts.scales.y.title.text = `Price (${result.meta.currency})`;
-
-                  return opts;
-                })
-
-                this.isLoading.set(false);
-              });
-        }
-      );
-    }
-  }
-
-  private initData(symbol: string, data: { x: number; y: number | null }[]) {
-    this.data.set({
-      datasets: [
-        {
-          label: symbol,
-          data: data,
-          fill: true,
-          borderColor: '#4bc0c0',
-          borderWidth: 1.5,
-          pointRadius: 0,
-          indexAxis: 'x',
-          tension: 0,
-        }
-      ]
-    });
-  }
-
-  private initRanges(validRanges: string[]) {
-    const filteredRanges = validRanges.filter((range) => {
-      return this.supportedRanges.includes(range as YahooFinanceChartRange);
-    }) as YahooFinanceChartRange[];
-
-    this.rangeOptions.set(filteredRanges);
+    // Sync after range changes
+    effect(() => this.from.set(this._from()))
+    effect(() => this.to.set(this._to()))
   }
 
   private computeFrom(range: Exclude<YahooFinanceChartRange, YahooFinanceChartRange.CUSTOM>): string {
