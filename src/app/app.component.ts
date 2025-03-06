@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MenubarComponent } from './component/menubar/menubar.component';
 import { OverviewMenuComponent } from './component/overview-menu/overview-menu.component';
-import { YahooFinanceChartComponent } from './component/simple-chart/yahoo-finance-chart.component';
+import { YahooFinanceChartComponent } from './component/yahoo-finance-chart/yahoo-finance-chart.component';
 
 @Component({
   selector: 'app-root',
