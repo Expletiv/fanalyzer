@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MenubarComponent } from './menubar.component';
+import { PpXmlFileUploaderComponent } from './pp-xml-file-uploader.component';
 import { provideHttpClient } from '@angular/common/http';
 
-describe('MenubarComponent', () => {
-  let component: MenubarComponent;
-  let fixture: ComponentFixture<MenubarComponent>;
+describe('PpXmlFileUploaderComponent', () => {
+  let component: PpXmlFileUploaderComponent;
+  let fixture: ComponentFixture<PpXmlFileUploaderComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MenubarComponent],
+      imports: [PpXmlFileUploaderComponent],
       providers: [provideHttpClient()]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MenubarComponent);
+    fixture = TestBed.createComponent(PpXmlFileUploaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,101 +1,36 @@
+import { z } from "zod";
+
 /* eslint-disable */
+export const CurrencyUnitSchema = z.enum(["EUR", "USD"]);
+export type CurrencyUnit = z.infer<typeof CurrencyUnitSchema>;
 
-export type Account = {
-  uuid: string;
-  name: string;
-  currencyCode: CurrencyUnit;
-  note?: string;
-  isRetired: boolean;
-  transactions: AccountTransaction[];
-  updatedAt: string; // ISO 8601 formatted datetime string
-};
+export const TransactionUnitTypeSchema = z.enum(["GROSS_VALUE", "TAX", "FEE"]);
+export type TransactionUnitType = z.infer<typeof TransactionUnitTypeSchema>;
 
-export type AccountTransaction = Transaction & {
-  type: AccountTransactionType;
-};
+export const TransactionUnitSchema = z.object({
+  type: TransactionUnitTypeSchema,
+  amount: z.object({
+    amount: z.number(),
+    currency: CurrencyUnitSchema,
+  }),
+});
+export type TransactionUnit = z.infer<typeof TransactionUnitSchema>;
 
-export type PortfolioTransaction = Transaction & {
-  type: PortfolioTransactionType;
-};
-
-export type Security = {
-  uuid: string;
-  onlineId: string;
-  name: string;
-  currencyCode: CurrencyUnit;
-  isin: string;
-  wkn: string;
-  feed: string;
-  isRetired: boolean;
-  updatedAt: string; // ISO 8601 formatted Instant string
-};
-
-export interface CrossEntry {
-  // TODO: Add cross entry properties
-}
-
-export type AccountTransferEntry = CrossEntry & {
-  accountFrom: Account;
-  transactionFrom: AccountTransaction;
-  accountTo: Account;
-  transactionTo: AccountTransaction;
-};
-
-export type BuySellEntry = CrossEntry & {
-  portfolio: Portfolio;
-  portfolioTransaction: PortfolioTransaction;
-  account: Account;
-  accountTransaction: AccountTransaction;
-};
-
-export type Portfolio = {
-  uuid: string;
-  name: string;
-  note?: string;
-  isRetired: boolean;
-  referenceAccount: Account;
-  transactions: PortfolioTransaction[];
-  updatedAt: string; // ISO 8601 formatted Instant string
-};
-
-export type Transaction = {
-  uuid: string;
-  date: string; // ISO 8601 formatted LocalDateTime string (YYYY-MM-DDTHH:mm)
-  currencyCode: CurrencyUnit;
-  amount: number;
-  security: Security;
-  crossEntry: CrossEntry;
-  shares: number;
-  note?: string;
-  source?: string;
-  units: TransactionUnit[];
-  updatedAt: string; // ISO 8601 formatted Instant string
-};
-
-export enum AccountTransactionType {
-  DEPOSIT = "DEPOSIT",
-  REMOVAL = "REMOVAL",
-  INTEREST = "INTEREST",
-  INTEREST_CHARGE = "INTEREST_CHARGE",
-  DIVIDENDS = "DIVIDENDS",
-  FEES = "FEES",
-  FEES_REFUND = "FEES_REFUND",
-  TAXES = "TAXES",
-  TAX_REFUND = "TAX_REFUND",
-  BUY = "BUY",
-  SELL = "SELL",
-  TRANSFER_IN = "TRANSFER_IN",
-  TRANSFER_OUT = "TRANSFER_OUT",
-}
+export const AccountTransactionTypeSchema = z.enum([
+  "DEPOSIT", "REMOVAL", "INTEREST", "INTEREST_CHARGE", "DIVIDENDS",
+  "FEES", "FEES_REFUND", "TAXES", "TAX_REFUND", "BUY", "SELL",
+  "TRANSFER_IN", "TRANSFER_OUT"
+]);
+export type AccountTransactionType = z.infer<typeof AccountTransactionTypeSchema>;
 
 export namespace AccountTransactionType {
   const debitTypes: Set<AccountTransactionType> = new Set([
-    AccountTransactionType.REMOVAL,
-    AccountTransactionType.INTEREST_CHARGE,
-    AccountTransactionType.FEES,
-    AccountTransactionType.TAXES,
-    AccountTransactionType.BUY,
-    AccountTransactionType.TRANSFER_OUT,
+    "REMOVAL",
+    "INTEREST_CHARGE",
+    "FEES",
+    "TAXES",
+    "BUY",
+    "TRANSFER_OUT"
   ]);
 
   export function isDebit(type: AccountTransactionType): boolean {
@@ -103,25 +38,20 @@ export namespace AccountTransactionType {
   }
 
   export function isCredit(type: AccountTransactionType): boolean {
-    return !isDebit(type);
+    return !debitTypes.has(type);
   }
 }
 
-
-export enum PortfolioTransactionType {
-  BUY = "BUY",
-  SELL = "SELL",
-  TRANSFER_IN = "TRANSFER_IN",
-  TRANSFER_OUT = "TRANSFER_OUT",
-  DELIVERY_INBOUND = "DELIVERY_INBOUND",
-  DELIVERY_OUTBOUND = "DELIVERY_OUTBOUND",
-}
+export const PortfolioTransactionTypeSchema = z.enum([
+  "BUY", "SELL", "TRANSFER_IN", "TRANSFER_OUT", "DELIVERY_INBOUND", "DELIVERY_OUTBOUND"
+]);
+export type PortfolioTransactionType = z.infer<typeof PortfolioTransactionTypeSchema>;
 
 export namespace PortfolioTransactionType {
   const purchaseTypes: Set<PortfolioTransactionType> = new Set([
-    PortfolioTransactionType.BUY,
-    PortfolioTransactionType.TRANSFER_IN,
-    PortfolioTransactionType.DELIVERY_INBOUND,
+    "BUY",
+    "TRANSFER_IN",
+    "DELIVERY_INBOUND",
   ]);
 
   export function isPurchase(type: PortfolioTransactionType): boolean {
@@ -129,23 +59,116 @@ export namespace PortfolioTransactionType {
   }
 
   export function isLiquidation(type: PortfolioTransactionType): boolean {
-    return !isPurchase(type);
+    return !purchaseTypes.has(type);
   }
 }
 
-export type TransactionUnit = {
-  type: TransactionUnitType;
-  amount: number;
-  currency: CurrencyUnit;
-};
-
-export enum TransactionUnitType {
-  GROSS_VALUE = "GROSS_VALUE",
-  TAX = "TAX",
-  FEE = "FEE",
+export const ArraySchema = <T extends z.ZodTypeAny>(type: T, key: string) => {
+  return z.preprocess((arg: any) => {
+    if (!arg || arg[key] === undefined) {
+      return [];
+    } else if (!Array.isArray(arg[key])) {
+      return [arg[key]];
+    } else {
+      return arg[key];
+    }
+  }, z.array(type)) as z.ZodEffects<z.ZodArray<T>, T["_output"][], T["_output"][]>;
 }
 
-export enum CurrencyUnit {
-  EUR = "EUR",
-  USD = "USD",
+export const ReferenceSchema = z.preprocess(arg => {
+  if (arg && typeof arg === 'object') {
+    return (arg as any).reference;
+  }
+  throw new Error("Invalid reference shape" + JSON.stringify(arg));
+}, z.number()) as z.ZodEffects<z.ZodNumber, number, number>; // see problem with unknown https://github.com/colinhacks/zod/issues/3537
+export type Reference = z.infer<typeof ReferenceSchema>;
+
+export const SecuritySchema = z.object({
+  uuid: z.string().uuid(),
+  onlineId: z.string(),
+  name: z.string(),
+  currencyCode: CurrencyUnitSchema,
+  isin: z.string().length(12),
+  wkn: z.string().length(6),
+  feed: z.string(),
+  isRetired: z.boolean(),
+  updatedAt: z.string().datetime(),
+});
+export type Security = z.infer<typeof SecuritySchema>;
+
+export type CrossEntry = AccountTransferEntry | BuySellEntry;
+export const CrossEntrySchema: z.ZodType<CrossEntry> = z.lazy(() =>
+  z.discriminatedUnion('class', [
+    AccountTransferEntrySchema,
+    BuySellEntrySchema,
+  ]));
+
+const TransactionSchema = z.object({
+  uuid: z.string().uuid(),
+  date: z.string(),
+  currencyCode: CurrencyUnitSchema,
+  amount: z.number(),
+  security: ReferenceSchema.optional(),
+  crossEntry: CrossEntrySchema.optional(),
+  shares: z.number(),
+  note: z.string().optional(),
+  source: z.string().optional(),
+  units: ArraySchema(TransactionUnitSchema, 'unit').optional(),
+  updatedAt: z.string().datetime(),
+});
+
+export const AccountTransactionSchema = TransactionSchema.extend({
+  type: AccountTransactionTypeSchema,
+});
+export type AccountTransaction = z.infer<typeof AccountTransactionSchema>;
+
+export const PortfolioTransactionSchema = TransactionSchema.extend({
+  type: PortfolioTransactionTypeSchema,
+});
+export type PortfolioTransaction = z.infer<typeof PortfolioTransactionSchema>;
+
+export const AccountSchema = z.object({
+  uuid: z.string().uuid(),
+  name: z.string(),
+  currencyCode: CurrencyUnitSchema,
+  note: z.string().optional(),
+  isRetired: z.boolean(),
+  transactions: ArraySchema(AccountTransactionSchema.or(ReferenceSchema), 'account-transaction'),
+  updatedAt: z.string().datetime(),
+});
+export type Account = z.infer<typeof AccountSchema>;
+
+export const PortfolioSchema = z.object({
+  uuid: z.string().uuid(),
+  name: z.string(),
+  note: z.string().optional(),
+  isRetired: z.boolean(),
+  referenceAccount: ReferenceSchema,
+  transactions: ArraySchema(PortfolioTransactionSchema.or(ReferenceSchema), 'account-transaction'),
+  updatedAt: z.string().datetime(),
+});
+export type Portfolio = z.infer<typeof PortfolioSchema>;
+
+export const AccountTransferEntrySchema = z.object({
+  class: z.literal('account-transfer'),
+  accountFrom: ReferenceSchema, // ReferenceSchema might be wrong, check later
+  transactionFrom: ReferenceSchema,
+  accountTo: ReferenceSchema,
+  transactionTo: ReferenceSchema,
+});
+export type AccountTransferEntry = z.infer<typeof AccountTransferEntrySchema>;
+
+export const BuySellEntrySchema = z.object({
+  class: z.literal('buysell'),
+  portfolio: PortfolioSchema,
+  portfolioTransaction: ReferenceSchema,
+  account: ReferenceSchema,
+  accountTransaction: ReferenceSchema,
+}) satisfies z.ZodType<BuySellEntry>;
+export type BuySellEntry = {
+  class: 'buysell';
+  portfolio: Portfolio;
+  portfolioTransaction: Reference;
+  account: Reference;
+  accountTransaction: Reference;
 }

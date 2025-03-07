@@ -6,6 +6,7 @@ import { Button } from 'primeng/button';
 import { ThemeService } from '../../service/theme.service';
 import { Router } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
+import { PpXmlFileUploaderComponent } from '../pp-xml-file-uploader/pp-xml-file-uploader.component';
 
 @Component({
   selector: 'app-menubar',
@@ -15,7 +16,8 @@ import { AsyncPipe } from '@angular/common';
     FormsModule,
     Button,
     AsyncPipe,
-    PrimeTemplate
+    PrimeTemplate,
+    PpXmlFileUploaderComponent
   ],
   templateUrl: './menubar.component.html',
   styleUrl: './menubar.component.css'
