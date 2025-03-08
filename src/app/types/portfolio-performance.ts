@@ -83,12 +83,12 @@ export type Reference = z.infer<typeof ReferenceSchema>;
 export const SecuritySchema = z.object({
   id: z.number(),
   uuid: z.string().uuid(),
-  onlineId: z.string(),
+  onlineId: z.string().optional(),
   name: z.string(),
   currencyCode: CurrencyUnitSchema,
   isin: z.string().length(12),
-  wkn: z.string().length(6),
-  feed: z.string(),
+  wkn: z.coerce.string().length(6).optional(),
+  feed: z.string().optional(),
   isRetired: z.boolean(),
   updatedAt: z.string().datetime(),
 });
@@ -127,7 +127,7 @@ export const PortfolioTransactionSchema = TransactionSchema.extend({
 export type PortfolioTransaction = z.infer<typeof PortfolioTransactionSchema>;
 
 export const AccountSchema = z.object({
-  id : z.number(),
+  id: z.number(),
   uuid: z.string().uuid(),
   name: z.string(),
   currencyCode: CurrencyUnitSchema,
@@ -176,3 +176,13 @@ export type BuySellEntry = {
   account: Reference;
   accountTransaction: Reference;
 }
+
+export const ClientSchema = z.object({
+  id: z.number(),
+  version: z.number(),
+  baseCurrency: CurrencyUnitSchema,
+  securities: ArraySchema(SecuritySchema, 'security'),
+  accounts: ArraySchema(AccountSchema, 'account'),
+  portfolios: ArraySchema(ReferenceSchema, 'portfolio'),
+});
+export type Client = z.infer<typeof ClientSchema>;

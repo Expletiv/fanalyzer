@@ -1,7 +1,11 @@
 <app-menubar></app-menubar>
-<div class="row">
+<div class="row mt-3">
   <div class="col-3">
-    <app-overview-menu></app-overview-menu>
+    <div class="flex-column">
+      <app-pp-xml-file-uploader></app-pp-xml-file-uploader>
+      <p-divider></p-divider>
+      <app-overview-menu></app-overview-menu>
+    </div>
   </div>
   <div class="col-6">
     <app-yahoo-finance-chart [symbol]="'AAPL'"></app-yahoo-finance-chart>

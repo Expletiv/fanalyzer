@@ -1,16 +1,7 @@
 import {
-  Account, AccountSchema,
-  ArraySchema
+  Client, ClientSchema
 } from '../types/portfolio-performance';
 
-export function parseAccounts(accounts: any): Account[] {
-  const safeParse = ArraySchema(AccountSchema, 'account').safeParse(accounts);
-
-  if (!safeParse.success) {
-    console.error('Error parsing accounts', safeParse.error);
-
-    return [];
-  }
-
-  return safeParse.data;
+export function parseClient(client: any): Client {
+  return ClientSchema.parse(client);
 }
