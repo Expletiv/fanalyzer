@@ -72,18 +72,16 @@ export const ArraySchema = <T extends z.ZodTypeAny>(type: T, key: string) => {
     } else {
       return arg[key];
     }
-  }, z.array(type)) as z.ZodEffects<z.ZodArray<T>, T["_output"][], T["_output"][]>;
+  }, z.array(type)) as z.ZodEffects<z.ZodArray<T>, T["_output"][], T["_output"][]>; // see problem with unknown https://github.com/colinhacks/zod/issues/3537
 }
 
-export const ReferenceSchema = z.preprocess(arg => {
-  if (arg && typeof arg === 'object') {
-    return (arg as any).reference;
-  }
-  throw new Error("Invalid reference shape" + JSON.stringify(arg));
-}, z.number()) as z.ZodEffects<z.ZodNumber, number, number>; // see problem with unknown https://github.com/colinhacks/zod/issues/3537
+export const ReferenceSchema = z.object({
+  reference: z.number()
+})
 export type Reference = z.infer<typeof ReferenceSchema>;
 
 export const SecuritySchema = z.object({
+  id: z.number(),
   uuid: z.string().uuid(),
   onlineId: z.string(),
   name: z.string(),
@@ -104,6 +102,7 @@ export const CrossEntrySchema: z.ZodType<CrossEntry> = z.lazy(() =>
   ]));
 
 const TransactionSchema = z.object({
+  id: z.number(),
   uuid: z.string().uuid(),
   date: z.string(),
   currencyCode: CurrencyUnitSchema,
@@ -128,6 +127,7 @@ export const PortfolioTransactionSchema = TransactionSchema.extend({
 export type PortfolioTransaction = z.infer<typeof PortfolioTransactionSchema>;
 
 export const AccountSchema = z.object({
+  id : z.number(),
   uuid: z.string().uuid(),
   name: z.string(),
   currencyCode: CurrencyUnitSchema,
@@ -139,6 +139,7 @@ export const AccountSchema = z.object({
 export type Account = z.infer<typeof AccountSchema>;
 
 export const PortfolioSchema = z.object({
+  id: z.number(),
   uuid: z.string().uuid(),
   name: z.string(),
   note: z.string().optional(),
@@ -151,6 +152,7 @@ export type Portfolio = z.infer<typeof PortfolioSchema>;
 
 export const AccountTransferEntrySchema = z.object({
   class: z.literal('account-transfer'),
+  id: z.number(),
   accountFrom: ReferenceSchema, // ReferenceSchema might be wrong, check later
   transactionFrom: ReferenceSchema,
   accountTo: ReferenceSchema,
@@ -160,6 +162,7 @@ export type AccountTransferEntry = z.infer<typeof AccountTransferEntrySchema>;
 
 export const BuySellEntrySchema = z.object({
   class: z.literal('buysell'),
+  id: z.number(),
   portfolio: PortfolioSchema,
   portfolioTransaction: ReferenceSchema,
   account: ReferenceSchema,
@@ -167,6 +170,7 @@ export const BuySellEntrySchema = z.object({
 }) satisfies z.ZodType<BuySellEntry>;
 export type BuySellEntry = {
   class: 'buysell';
+  id: number;
   portfolio: Portfolio;
   portfolioTransaction: Reference;
   account: Reference;

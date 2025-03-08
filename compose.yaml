@@ -3,4 +3,6 @@ services:
     container_name: web
     image: ${IMAGES_PREFIX:-}app-web
     restart: unless-stopped
+    environment:
+      SERVER_NAME: fanalyzer.localhost
 
