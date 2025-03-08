@@ -94,12 +94,15 @@ export const SecuritySchema = z.object({
 });
 export type Security = z.infer<typeof SecuritySchema>;
 
-export type CrossEntry = AccountTransferEntry | BuySellEntry;
+export type CrossEntry = AccountTransferEntry | BuySellEntry | AccountTransferReferenceEntry | BuySellReferenceEntry;
 export const CrossEntrySchema: z.ZodType<CrossEntry> = z.lazy(() =>
-  z.discriminatedUnion('class', [
+  z.union([
     AccountTransferEntrySchema,
     BuySellEntrySchema,
-  ]));
+    AccountTransferReferenceEntrySchema,
+    BuySellReferenceEntrySchema,
+  ])
+);
 
 const TransactionSchema = z.object({
   id: z.number(),
@@ -145,7 +148,7 @@ export const PortfolioSchema = z.object({
   note: z.string().optional(),
   isRetired: z.boolean(),
   referenceAccount: ReferenceSchema,
-  transactions: ArraySchema(PortfolioTransactionSchema.or(ReferenceSchema), 'account-transaction'),
+  transactions: ArraySchema(PortfolioTransactionSchema.or(ReferenceSchema), 'portfolio-transaction'),
   updatedAt: z.string().datetime(),
 });
 export type Portfolio = z.infer<typeof PortfolioSchema>;
@@ -153,7 +156,7 @@ export type Portfolio = z.infer<typeof PortfolioSchema>;
 export const AccountTransferEntrySchema = z.object({
   class: z.literal('account-transfer'),
   id: z.number(),
-  accountFrom: ReferenceSchema, // ReferenceSchema might be wrong, check later
+  accountFrom: ReferenceSchema, // ReferenceSchema might be wrong, check later, also look at union with AccountSchema etc.
   transactionFrom: ReferenceSchema,
   accountTo: ReferenceSchema,
   transactionTo: ReferenceSchema,
@@ -163,19 +166,32 @@ export type AccountTransferEntry = z.infer<typeof AccountTransferEntrySchema>;
 export const BuySellEntrySchema = z.object({
   class: z.literal('buysell'),
   id: z.number(),
-  portfolio: PortfolioSchema,
-  portfolioTransaction: ReferenceSchema,
-  account: ReferenceSchema,
-  accountTransaction: ReferenceSchema,
+  portfolio: ReferenceSchema.or(PortfolioSchema),
+  portfolioTransaction: ReferenceSchema.or(PortfolioTransactionSchema),
+  account: ReferenceSchema.or(AccountSchema),
+  accountTransaction: ReferenceSchema.or(AccountTransactionSchema),
 }) satisfies z.ZodType<BuySellEntry>;
 export type BuySellEntry = {
   class: 'buysell';
   id: number;
-  portfolio: Portfolio;
-  portfolioTransaction: Reference;
-  account: Reference;
-  accountTransaction: Reference;
+  portfolio: Reference | Portfolio;
+  portfolioTransaction: Reference | PortfolioTransaction;
+  account: Reference | Account;
+  accountTransaction: Reference | AccountTransaction;
 }
+
+export const AccountTransferReferenceEntrySchema = z.object({
+  class: z.preprocess(arg => arg + '-reference', z.literal('account-transfer-reference')) as z.ZodEffects<z.ZodLiteral<string>, "account-transfer-reference", "account-transfer-reference">,
+  reference: z.number(),
+});
+export type AccountTransferReferenceEntry = z.infer<typeof AccountTransferReferenceEntrySchema>;
+
+export const BuySellReferenceEntrySchema = z.object({
+  class: z.preprocess(arg => arg + '-reference', z.literal('buysell-reference')) as z.ZodEffects<z.ZodLiteral<string>, "buysell-reference", "buysell-reference">,
+  reference: z.number(),
+});
+export type BuySellReferenceEntry = z.infer<typeof BuySellReferenceEntrySchema>;
+
 
 export const ClientSchema = z.object({
   id: z.number(),
