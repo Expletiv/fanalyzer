@@ -22,7 +22,6 @@ import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-yahoo-finance-chart',
-  standalone: true,
   imports: [
     UIChart,
     ProgressBar,

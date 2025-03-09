@@ -11,16 +11,17 @@ export class ThemeService {
   private readonly request = inject(REQUEST);
   private readonly storageKey = 'darkMode';
   private readonly darkTheme = 'app-dark';
+  private readonly darkMode = new BehaviorSubject<boolean>(false);
 
-  isDarkMode$ = new BehaviorSubject<boolean>(false);
+  readonly isDarkMode$ = this.darkMode.asObservable();
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       // Initialize from existing DOM class
       const initialMode = document.querySelector('html')?.classList.contains(this.darkTheme) ?? false;
-      this.isDarkMode$.next(initialMode);
+      this.darkMode.next(initialMode);
 
-      this.isDarkMode$
+      this.darkMode
         .pipe(distinctUntilChanged())
         .subscribe(newMode => this.storePreference(newMode));
     }
@@ -29,12 +30,12 @@ export class ThemeService {
       const cookies = this.request.headers.get('cookie')?.split('; ');
       const darkMode = cookies?.find(c => c.startsWith(`${this.storageKey}=true`));
 
-      this.isDarkMode$.next(darkMode !== undefined);
+      this.darkMode.next(darkMode !== undefined);
     }
   }
 
   toggleTheme() {
-    this.isDarkMode$.next(!this.isDarkMode$.getValue());
+    this.darkMode.next(!this.darkMode.getValue());
   }
 
   private storePreference(newMode: boolean) {

@@ -4,20 +4,16 @@ import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { ThemeService } from '../../service/theme.service';
-import { Router } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
-import { PpXmlFileUploaderComponent } from '../pp-xml-file-uploader/pp-xml-file-uploader.component';
 
 @Component({
   selector: 'app-menubar',
-  standalone: true,
   imports: [
     Menubar,
     FormsModule,
     Button,
     AsyncPipe,
     PrimeTemplate,
-    PpXmlFileUploaderComponent
   ],
   templateUrl: './menubar.component.html',
   styleUrl: './menubar.component.css'
@@ -26,17 +22,85 @@ export class MenubarComponent implements OnInit {
 
   protected items: MenuItem[] | undefined;
   protected readonly themeService = inject(ThemeService);
-  private readonly router = inject(Router);
 
   ngOnInit() {
     this.items = [
       {
         label: 'Fanalyzer',
-        command: () => this.router.navigate(['/'])
+        icon: 'pi pi-fw pi-home',
+        routerLink: ['/'],
       },
       {
-        label: 'Other',
-        command: () => this.router.navigate(['/other'])
+        label: 'Securities',
+        routerLink: ['/securities'],
+      },
+      {
+        label: 'Accounts',
+        items: [
+          {
+            label: 'Deposits',
+            icon: 'pi pi-warehouse',
+          },
+          {
+            label: 'Securities',
+            icon: 'pi pi-money-bill',
+          },
+          {
+            label: 'Investment Plans',
+            icon: 'pi pi-chart-bar',
+          },
+          {
+            label: 'All transactions',
+            icon: 'pi pi-list',
+          },
+        ]
+      },
+      {
+        label: 'Reports',
+        items: [
+          {
+            label: 'Statement of Assets',
+            items: [
+              {
+                label: 'Chart',
+                icon: 'pi pi-chart-line',
+              },
+              {
+                label: 'Holdings',
+                icon: 'pi pi-dollar',
+              }
+            ]
+          },
+          {
+            label: 'Performance',
+            items: [
+              {
+                label: 'Calculation',
+                icon: 'pi pi-calculator',
+              },
+              {
+                label: 'Chart',
+                icon: 'pi pi-chart-bar',
+              },
+              {
+                label: 'Return / Volatility',
+                icon: 'pi pi-chart-line',
+              },
+              {
+                label: 'Securities',
+                icon: 'pi pi-money-bill',
+              },
+              {
+                label: 'Payments',
+                icon: 'pi pi-dollar',
+              },
+              {
+                label: 'Trades',
+                icon: 'pi pi-list',
+              }
+            ]
+          },
+        ]
       }
     ]
   }

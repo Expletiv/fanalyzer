@@ -1,15 +1,6 @@
-<div class="flex-column">
-  <div class="d-flex justify-content-evenly">
-    <div class="d-flex align-items-center">
-      <p-button icon="pi pi-question"
-                size="small"
-                class="me-1"
-                styleClass="rounded-pill"
-                [outlined]="true"
-                severity="secondary"
-                (click)="op.toggle($event)"
-      ></p-button>
-
+<p-card>
+  <div class="d-flex">
+    <div class="d-flex align-items-center me-auto">
       <p-fileUpload
         mode="basic"
         accept=".xml"
@@ -26,15 +17,25 @@
         chooseLabel="Upload XML"
         [auto]="true"
       ></p-fileUpload>
+      <p-button icon="pi pi-question"
+                size="small"
+                class="ms-1"
+                styleClass="rounded-pill"
+                [outlined]="true"
+                severity="secondary"
+                (click)="op.toggle($event)"
+      ></p-button>
     </div>
-    <p-button
-      label="Download JSON"
-      icon="pi pi-download"
-      (onClick)="onDownload()"
-      [disabled]="!client()"
-    ></p-button>
+    <div class="d-flex">
+      <p-button
+        label="Download JSON"
+        icon="pi pi-download"
+        (onClick)="onDownload()"
+        [disabled]="!client()"
+      ></p-button>
+    </div>
   </div>
-</div>
+</p-card>
 
 <p-popover #op>
   <div class="flex-column">
@@ -42,3 +43,4 @@
     <div class="text-center fw-light fst-italic">(File -> Save as -> XML with "id" attributes)</div>
   </div>
 </p-popover>
+<p-toast/>

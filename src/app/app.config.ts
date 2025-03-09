@@ -22,9 +22,9 @@ export const appConfig: ApplicationConfig = {
         options: {
           darkModeSelector: '.app-dark',
         }
-      }
+      },
     }),
     provideClientHydration(withIncrementalHydration()),
-    provideHttpClient(withFetch())
+    provideHttpClient(withFetch()),
   ]
 };

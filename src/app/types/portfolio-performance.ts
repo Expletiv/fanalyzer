@@ -192,7 +192,6 @@ export const BuySellReferenceEntrySchema = z.object({
 });
 export type BuySellReferenceEntry = z.infer<typeof BuySellReferenceEntrySchema>;
 
-
 export const ClientSchema = z.object({
   id: z.number(),
   version: z.number(),

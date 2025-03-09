@@ -1,0 +1,23 @@
+<p-table [value]="client()?.securities ?? []" [paginator]="true" [rows]="15" [loading]="!client()">
+  <ng-template pTemplate="header">
+    <tr>
+      <th>Name</th>
+      <th>ISIN</th>
+      <th>WKN</th>
+      <th>Note</th>
+      <th>Symbol</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-security>
+    <tr>
+      <td>{{ security.name }}</td>
+      <td>{{ security.isin }}</td>
+      <td>{{ security.wkn }}</td>
+      <td>{{ security.note }}</td>
+      <td>{{ security.symbol }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+@if (!isXmlUploaded()) {
+  <p-message severity="info">Please upload your XML file to view data.</p-message>
+}

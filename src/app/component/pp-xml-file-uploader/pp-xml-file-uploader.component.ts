@@ -1,42 +1,39 @@
-import { Component, inject, model, ModelSignal, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID, Signal } from '@angular/core';
 import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { parseString } from 'xml2js';
 import { parseClient } from '../../parser/portfolio-parser';
 import { parseBooleans, parseNumbers } from 'xml2js/lib/processors';
 import { Button } from 'primeng/button';
 import { Client } from '../../types/portfolio-performance';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { isPlatformServer } from '@angular/common';
 import { Popover } from 'primeng/popover';
-
-const CLIENT_KEY = 'client';
+import { Card } from 'primeng/card';
+import { PpClientService } from '../../service/pp-client.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-pp-xml-file-uploader',
-  standalone: true,
   imports: [
     FileUpload,
     Button,
-    Popover
+    Popover,
+    Card,
+    Toast
   ],
+  providers: [MessageService],
   templateUrl: './pp-xml-file-uploader.component.html',
   styleUrl: './pp-xml-file-uploader.component.css'
 })
-export class PpXmlFileUploaderComponent implements OnInit {
+export class PpXmlFileUploaderComponent {
 
   protected readonly isPlatformServer = isPlatformServer;
-
   protected platformId = inject(PLATFORM_ID);
+  private ppClientService = inject(PpClientService);
+  private messageService = inject(MessageService);
 
-  protected client: ModelSignal<Client | undefined> = model<Client>();
-
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const client = localStorage.getItem(CLIENT_KEY);
-      if (client) {
-        this.client.set(JSON.parse(client));
-      }
-    }
-  }
+  protected client: Signal<Client | undefined> = toSignal(this.ppClientService.client$);
 
   onFileSelected(event: FileSelectEvent) {
     const file = event.files[0];
@@ -54,13 +51,17 @@ export class PpXmlFileUploaderComponent implements OnInit {
         }, (err, result) => {
           if (err) {
             console.error('Error parsing XML', err);
-
+            this.messageService.add({summary: 'Error parsing XML', severity: 'error'});
             return;
           }
 
-          const client = parseClient(result.client);
-          this.client.set(client);
-          localStorage.setItem(CLIENT_KEY, JSON.stringify(client));
+          try {
+            this.ppClientService.setClient(parseClient(result.client));
+          } catch (e) {
+            console.error('Error parsing input', e);
+          }
+
+          this.messageService.add({summary: 'File uploaded', severity: 'success'});
         });
       };
 
@@ -69,15 +70,17 @@ export class PpXmlFileUploaderComponent implements OnInit {
   }
 
   onDownload() {
-    const client = localStorage.getItem(CLIENT_KEY);
+    const client = this.client();
     if (!client) {
       return;
     }
-    const blob = new Blob([client], {type: 'application/json'});
+    const blob = new Blob([JSON.stringify(client)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'main.portfolio.json';
     a.click();
+
+    this.messageService.add({summary: 'Download started'});
   }
 }
