@@ -1,11 +1,50 @@
-<p-table [value]="client()?.securities ?? []" [paginator]="true" [rows]="15" [loading]="!client()">
+@if (false) {
+  <!--  We have to skip hydration until this issue is fixed: https://github.com/angular/angular/issues/50543-->
+}
+<p-table [value]="client()?.securities ?? []" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]"
+         [loading]="!client()" [globalFilterFields]="['name', 'isin', 'wkn', 'symbol', 'note']" sortField="name"
+         #securitiesTable
+         dataKey="isin" ngSkipHydration>
+  <ng-template pTemplate="caption">
+    <div class="d-flex justify-content-between">
+      <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="securitiesTable.clear()"/>
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          #searchInput
+          pInputText
+          type="text"
+          (input)="securitiesTable.filterGlobal(searchInput.value, 'contains')"
+          placeholder="Search..."
+        />
+      </p-iconfield>
+    </div>
+  </ng-template>
   <ng-template pTemplate="header">
     <tr>
-      <th>Name</th>
-      <th>ISIN</th>
-      <th>WKN</th>
+      <th pSortableColumn="name">
+        Name
+        <p-sortIcon field="name"></p-sortIcon>
+        <p-columnFilter type="text" field="name" display="menu"/>
+      </th>
+      <th pSortableColumn="isin">
+        ISIN
+        <p-sortIcon field="isin"></p-sortIcon>
+        <p-columnFilter type="text" field="isin" display="menu"/>
+      </th>
+      <th pSortableColumn="wkn">
+        WKN
+        <p-sortIcon field="wkn"></p-sortIcon>
+        <p-columnFilter type="text" field="wkn" display="menu"/>
+      </th>
+      <th pSortableColumn="symbol">
+        Symbol
+        <p-sortIcon field="symbol"></p-sortIcon>
+        <p-columnFilter type="text" field="symbol" display="menu"/>
+      </th>
       <th>Note</th>
-      <th>Symbol</th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-security>
@@ -13,11 +52,15 @@
       <td>{{ security.name }}</td>
       <td>{{ security.isin }}</td>
       <td>{{ security.wkn }}</td>
-      <td>{{ security.note }}</td>
       <td>{{ security.symbol }}</td>
+      <td>{{ security.note }}</td>
     </tr>
   </ng-template>
 </p-table>
-@if (!isXmlUploaded()) {
-  <p-message severity="info">Please upload your XML file to view data.</p-message>
+
+@defer (on immediate) {
+  @if (!isXmlUploaded()) {
+    <p-message severity="info">Please upload your XML file to view data.</p-message>
+  }
+} @placeholder (minimum 500) {
 }

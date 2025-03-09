@@ -4,12 +4,20 @@ import { Client } from '../../types/portfolio-performance';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TableModule } from 'primeng/table';
 import { Message } from 'primeng/message';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputText} from 'primeng/inputtext';
+import {Button} from 'primeng/button';
 
 @Component({
   selector: 'app-securities',
   imports: [
     TableModule,
-    Message
+    Message,
+    IconField,
+    InputIcon,
+    InputText,
+    Button
   ],
   templateUrl: './securities.component.html',
   styleUrl: './securities.component.css'
