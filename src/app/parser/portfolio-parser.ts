@@ -1,10 +1,14 @@
-import { Client, ClientSchema } from '../types/portfolio-performance';
+import { Client, ClientData, ClientDataSchema, ClientSchema } from '../types/portfolio-performance';
 
 export function parseClient(client: any): Client {
   return ClientSchema.parse(client);
 }
 
-export function getIndexedClient(client: Client): Map<number, object> {
+export function parseClientData(clientData: any): ClientData {
+  return ClientDataSchema.parse(clientData);
+}
+
+export function getIndexedClient(client: any): Map<number, object> {
   return indexObjects(getObjectsRecursive(client));
 }
 

@@ -2,9 +2,8 @@
   <!--  We have to skip hydration until this issue is fixed: https://github.com/angular/angular/issues/50543-->
 }
 <p-table [value]="client()?.securities ?? []" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]"
-         [loading]="!client()" [globalFilterFields]="['name', 'isin', 'wkn', 'symbol', 'note']" sortField="name"
-         #securitiesTable
-         dataKey="isin" ngSkipHydration>
+         [loading]="!client() || isHydrating()" [globalFilterFields]="['name', 'isin', 'wkn', 'symbol', 'note']"
+         sortField="name" dataKey="isin" ngSkipHydration #securitiesTable>
   <ng-template pTemplate="caption">
     <div class="d-flex justify-content-between">
       <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="securitiesTable.clear()"/>
@@ -39,10 +38,10 @@
         <p-sortIcon field="wkn"></p-sortIcon>
         <p-columnFilter type="text" field="wkn" display="menu"/>
       </th>
-      <th pSortableColumn="symbol">
+      <th pSortableColumn="tickerSymbol">
         Symbol
-        <p-sortIcon field="symbol"></p-sortIcon>
-        <p-columnFilter type="text" field="symbol" display="menu"/>
+        <p-sortIcon field="tickerSymbol"></p-sortIcon>
+        <p-columnFilter type="text" field="tickerSymbol" display="menu"/>
       </th>
       <th>Note</th>
     </tr>
@@ -52,7 +51,13 @@
       <td>{{ security.name }}</td>
       <td>{{ security.isin }}</td>
       <td>{{ security.wkn }}</td>
-      <td>{{ security.symbol }}</td>
+      <td>
+        @if (isHydrating()) {
+          <p-skeleton width="4rem"></p-skeleton>
+        } @else {
+          {{ security.tickerSymbol }}
+        }
+      </td>
       <td>{{ security.note }}</td>
     </tr>
   </ng-template>

@@ -65,7 +65,9 @@ export namespace PortfolioTransactionType {
 
 export const ArraySchema = <T extends z.ZodTypeAny>(type: T, key: string) => {
   return z.preprocess((arg: any) => {
-    if (!arg || arg[key] === undefined) {
+    if (Array.isArray(arg)) {
+      return arg;
+    } else if (!arg || arg[key] === undefined) {
       return [];
     } else if (!Array.isArray(arg[key])) {
       return [arg[key]];
@@ -77,8 +79,11 @@ export const ArraySchema = <T extends z.ZodTypeAny>(type: T, key: string) => {
 
 export const ReferenceSchema = z.object({
   reference: z.number()
-})
-export type Reference = z.infer<typeof ReferenceSchema>;
+}) satisfies z.ZodType<Reference>;
+
+export interface Reference {
+  reference: number;
+}
 
 export const SecuritySchema = z.object({
   id: z.number(),
@@ -88,11 +93,25 @@ export const SecuritySchema = z.object({
   currencyCode: CurrencyUnitSchema,
   isin: z.string().length(12),
   wkn: z.coerce.string().length(6).optional(),
+  tickerSymbol: z.string().optional(),
   feed: z.string().optional(),
   isRetired: z.boolean(),
   updatedAt: z.string().datetime(),
-});
-export type Security = z.infer<typeof SecuritySchema>;
+}) satisfies z.ZodType<Security>;
+
+export interface Security {
+  id: number;
+  uuid: string;
+  onlineId?: string | undefined;
+  name: string;
+  currencyCode: CurrencyUnit;
+  isin: string;
+  wkn?: string | undefined;
+  tickerSymbol?: string | undefined;
+  feed?: string | undefined;
+  isRetired: boolean;
+  updatedAt: string;
+}
 
 export type CrossEntry = AccountTransferEntry | BuySellEntry | AccountTransferReferenceEntry | BuySellReferenceEntry;
 export const CrossEntrySchema: z.ZodType<CrossEntry> = z.lazy(() =>
@@ -117,17 +136,38 @@ const TransactionSchema = z.object({
   source: z.string().optional(),
   units: ArraySchema(TransactionUnitSchema, 'unit').optional(),
   updatedAt: z.string().datetime(),
-});
+}) satisfies z.ZodType<Transaction>;
+
+export interface Transaction {
+  id: number;
+  uuid: string;
+  date: string;
+  currencyCode: CurrencyUnit;
+  amount: number;
+  security?: Reference | undefined;
+  crossEntry?: CrossEntry | undefined;
+  shares: number;
+  note?: string | undefined;
+  source?: string | undefined;
+  units?: TransactionUnit[] | undefined;
+  updatedAt: string;
+}
 
 export const AccountTransactionSchema = TransactionSchema.extend({
   type: AccountTransactionTypeSchema,
-});
-export type AccountTransaction = z.infer<typeof AccountTransactionSchema>;
+}) satisfies z.ZodType<AccountTransaction>;
+
+export interface AccountTransaction extends Transaction {
+  type: AccountTransactionType;
+}
 
 export const PortfolioTransactionSchema = TransactionSchema.extend({
   type: PortfolioTransactionTypeSchema,
-});
-export type PortfolioTransaction = z.infer<typeof PortfolioTransactionSchema>;
+}) satisfies z.ZodType<PortfolioTransaction>;
+
+export interface PortfolioTransaction extends Transaction {
+  type: PortfolioTransactionType;
+}
 
 export const AccountSchema = z.object({
   id: z.number(),
@@ -138,8 +178,18 @@ export const AccountSchema = z.object({
   isRetired: z.boolean(),
   transactions: ArraySchema(AccountTransactionSchema.or(ReferenceSchema), 'account-transaction'),
   updatedAt: z.string().datetime(),
-});
-export type Account = z.infer<typeof AccountSchema>;
+}) satisfies z.ZodType<Account>;
+
+export interface Account {
+  id: number;
+  uuid: string;
+  name: string;
+  currencyCode: CurrencyUnit;
+  note?: string | undefined;
+  isRetired: boolean;
+  transactions: (AccountTransaction | Reference)[];
+  updatedAt: string;
+}
 
 export const PortfolioSchema = z.object({
   id: z.number(),
@@ -150,8 +200,18 @@ export const PortfolioSchema = z.object({
   referenceAccount: ReferenceSchema,
   transactions: ArraySchema(PortfolioTransactionSchema.or(ReferenceSchema), 'portfolio-transaction'),
   updatedAt: z.string().datetime(),
-});
-export type Portfolio = z.infer<typeof PortfolioSchema>;
+}) satisfies z.ZodType<Portfolio>;
+
+export interface Portfolio {
+  id: number;
+  uuid: string;
+  name: string;
+  note?: string | undefined;
+  isRetired: boolean;
+  referenceAccount: Reference;
+  transactions: (PortfolioTransaction | Reference)[];
+  updatedAt: string;
+}
 
 export const AccountTransferEntrySchema = z.object({
   class: z.literal('account-transfer'),
@@ -160,8 +220,16 @@ export const AccountTransferEntrySchema = z.object({
   transactionFrom: ReferenceSchema,
   accountTo: ReferenceSchema,
   transactionTo: ReferenceSchema,
-});
-export type AccountTransferEntry = z.infer<typeof AccountTransferEntrySchema>;
+}) satisfies z.ZodType<AccountTransferEntry>;
+
+export interface AccountTransferEntry {
+  class: 'account-transfer';
+  id: number;
+  accountFrom: Reference;
+  transactionFrom: Reference;
+  accountTo: Reference;
+  transactionTo: Reference;
+}
 
 export const BuySellEntrySchema = z.object({
   class: z.literal('buysell'),
@@ -171,7 +239,8 @@ export const BuySellEntrySchema = z.object({
   account: ReferenceSchema.or(AccountSchema),
   accountTransaction: ReferenceSchema.or(AccountTransactionSchema),
 }) satisfies z.ZodType<BuySellEntry>;
-export type BuySellEntry = {
+
+export interface BuySellEntry {
   class: 'buysell';
   id: number;
   portfolio: Reference | Portfolio;
@@ -181,23 +250,60 @@ export type BuySellEntry = {
 }
 
 export const AccountTransferReferenceEntrySchema = z.object({
-  class: z.preprocess(arg => arg + '-reference', z.literal('account-transfer-reference')) as z.ZodEffects<z.ZodLiteral<string>, "account-transfer-reference", "account-transfer-reference">,
+  class: z.preprocess(arg => arg === 'account-transfer-reference' ? arg : arg + '-reference', z.literal('account-transfer-reference')) as z.ZodEffects<z.ZodLiteral<string>, "account-transfer-reference", "account-transfer-reference">,
   reference: z.number(),
-});
-export type AccountTransferReferenceEntry = z.infer<typeof AccountTransferReferenceEntrySchema>;
+}) satisfies z.ZodType<AccountTransferReferenceEntry>;
+
+export interface AccountTransferReferenceEntry {
+  class: 'account-transfer-reference';
+  reference: number;
+}
 
 export const BuySellReferenceEntrySchema = z.object({
-  class: z.preprocess(arg => arg + '-reference', z.literal('buysell-reference')) as z.ZodEffects<z.ZodLiteral<string>, "buysell-reference", "buysell-reference">,
+  class: z.preprocess(arg => arg === 'buysell-reference' ? arg : arg + '-reference', z.literal('buysell-reference')) as z.ZodEffects<z.ZodLiteral<string>, "buysell-reference", "buysell-reference">,
   reference: z.number(),
-});
-export type BuySellReferenceEntry = z.infer<typeof BuySellReferenceEntrySchema>;
+}) satisfies z.ZodType<BuySellReferenceEntry>;
 
-export const ClientSchema = z.object({
+export interface BuySellReferenceEntry {
+  class: 'buysell-reference';
+  reference: number;
+}
+
+export const ClientDataSchema = z.object({
   id: z.number(),
   version: z.number(),
   baseCurrency: CurrencyUnitSchema,
   securities: ArraySchema(SecuritySchema, 'security'),
   accounts: ArraySchema(AccountSchema, 'account'),
   portfolios: ArraySchema(ReferenceSchema, 'portfolio'),
-});
-export type Client = z.infer<typeof ClientSchema>;
+}) satisfies z.ZodType<ClientData>;
+
+export interface ClientData {
+  id: number;
+  version: number;
+  baseCurrency: CurrencyUnit;
+  securities: Security[];
+  accounts: Account[];
+  portfolios: Reference[];
+}
+
+export const ClientStateSchema = z.enum(
+  [
+    'empty',
+    'initial',
+    'hydrating',
+    'hydrated'
+  ]
+);
+
+export type ClientState = z.infer<typeof ClientStateSchema>;
+
+export const ClientSchema = z.object({
+  data: ClientDataSchema.optional(),
+  state: ClientStateSchema,
+}) satisfies z.ZodType<Client>;
+
+export interface Client {
+  data?: ClientData | undefined;
+  state: ClientState;
+}

@@ -1,13 +1,13 @@
-import { Component, inject, Signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Signal } from '@angular/core';
 import { PpClientService } from '../../service/pp-client.service';
-import { Client } from '../../types/portfolio-performance';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ClientData } from '../../types/portfolio-performance';
 import { TableModule } from 'primeng/table';
 import { Message } from 'primeng/message';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Button } from 'primeng/button';
+import { Skeleton } from 'primeng/skeleton';
 
 @Component({
   selector: 'app-securities',
@@ -17,14 +17,17 @@ import {Button} from 'primeng/button';
     IconField,
     InputIcon,
     InputText,
-    Button
+    Button,
+    Skeleton,
   ],
   templateUrl: './securities.component.html',
-  styleUrl: './securities.component.css'
+  styleUrl: './securities.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SecuritiesComponent {
   private readonly ppClientService = inject(PpClientService);
 
-  protected client: Signal<Client | undefined> = toSignal(this.ppClientService.client$);
-  protected isXmlUploaded: Signal<boolean> = toSignal(this.ppClientService.isXmlUploaded$, {initialValue: false});
+  protected client: Signal<ClientData | undefined> = this.ppClientService.getData();
+  protected isHydrating: Signal<boolean> = this.ppClientService.isHydrating();
+  protected isXmlUploaded: Signal<boolean> = this.ppClientService.isXmlUploaded();
 }

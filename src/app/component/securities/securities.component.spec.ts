@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SecuritiesComponent } from './securities.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideHttpClient } from '@angular/common/http';
 
 describe('SecuritiesComponent', () => {
   let component: SecuritiesComponent;
@@ -10,7 +11,7 @@ describe('SecuritiesComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SecuritiesComponent],
-      providers: [provideAnimationsAsync()]
+      providers: [provideAnimationsAsync(), provideHttpClient()]
     })
     .compileComponents();
 

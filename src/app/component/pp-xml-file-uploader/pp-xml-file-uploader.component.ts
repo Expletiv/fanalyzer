@@ -1,17 +1,16 @@
 import { Component, inject, PLATFORM_ID, Signal } from '@angular/core';
 import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { parseString } from 'xml2js';
-import { parseClient } from '../../parser/portfolio-parser';
 import { parseBooleans, parseNumbers } from 'xml2js/lib/processors';
 import { Button } from 'primeng/button';
-import { Client } from '../../types/portfolio-performance';
+import { ClientData } from '../../types/portfolio-performance';
 import { isPlatformServer } from '@angular/common';
 import { Popover } from 'primeng/popover';
 import { Card } from 'primeng/card';
 import { PpClientService } from '../../service/pp-client.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { ProgressBar } from 'primeng/progressbar';
 
 @Component({
   selector: 'app-pp-xml-file-uploader',
@@ -20,7 +19,8 @@ import { MessageService } from 'primeng/api';
     Button,
     Popover,
     Card,
-    Toast
+    Toast,
+    ProgressBar
   ],
   providers: [MessageService],
   templateUrl: './pp-xml-file-uploader.component.html',
@@ -33,7 +33,8 @@ export class PpXmlFileUploaderComponent {
   private ppClientService = inject(PpClientService);
   private messageService = inject(MessageService);
 
-  protected client: Signal<Client | undefined> = toSignal(this.ppClientService.client$);
+  protected client: Signal<ClientData | undefined> = this.ppClientService.getData();
+  protected isHydrating: Signal<boolean> = this.ppClientService.isHydrating();
 
   onFileSelected(event: FileSelectEvent) {
     const file = event.files[0];
@@ -56,7 +57,7 @@ export class PpXmlFileUploaderComponent {
           }
 
           try {
-            this.ppClientService.setClient(parseClient(result.client));
+            this.ppClientService.newClient(result.client);
           } catch (e) {
             console.error('Error parsing input', e);
           }

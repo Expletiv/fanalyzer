@@ -1,4 +1,4 @@
-<p-card>
+<p-card class="custom-card">
   <div class="d-flex">
     <div class="d-flex align-items-center me-auto">
       <p-fileUpload
@@ -35,6 +35,11 @@
       ></p-button>
     </div>
   </div>
+  @if (isHydrating()) {
+    <div class="progress-wrapper">
+      <p-progressBar class="custom-progress" mode="indeterminate"></p-progressBar>
+    </div>
+  }
 </p-card>
 
 <p-popover #op>
