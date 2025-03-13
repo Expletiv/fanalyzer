@@ -8,6 +8,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { Skeleton } from 'primeng/skeleton';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-securities',
@@ -19,6 +20,7 @@ import { Skeleton } from 'primeng/skeleton';
     InputText,
     Button,
     Skeleton,
+    RouterLink,
   ],
   templateUrl: './securities.component.html',
   styleUrl: './securities.component.css',

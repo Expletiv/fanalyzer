@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { Menubar } from 'primeng/menubar';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +16,8 @@ import { AsyncPipe } from '@angular/common';
     PrimeTemplate,
   ],
   templateUrl: './menubar.component.html',
-  styleUrl: './menubar.component.css'
+  styleUrl: './menubar.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MenubarComponent implements OnInit {
 

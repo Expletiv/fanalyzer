@@ -14,6 +14,8 @@ import yahooFinance from 'yahoo-finance2';
 
 export function app(): express.Express {
   const server = express();
+  server.set('trust proxy', true);
+
   // Parse JSON request bodies
   server.use(express.json());
 

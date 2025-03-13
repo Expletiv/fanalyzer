@@ -1,4 +1,23 @@
+{
+  order cache before reverse_proxy
+
+  cache {
+    allowed_http_verbs GET HEAD POST
+    key {
+      hash
+    }
+    ttl 5m
+    stale 1m
+  }
+}
+
 {$SERVER_NAME:localhost} {
-    root * /usr/share/caddy/browser
-    file_server
+  route /api/yahoo-finance {
+    cache
+    reverse_proxy ssr-server:4000
+  }
+
+  route * {
+    reverse_proxy ssr-server:4000
+  }
 }

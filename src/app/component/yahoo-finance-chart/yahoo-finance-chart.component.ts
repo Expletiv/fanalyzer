@@ -1,9 +1,10 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
-  input,
+  input, InputSignal,
   model,
   Signal,
 } from '@angular/core';
@@ -32,13 +33,14 @@ import { rxResource } from '@angular/core/rxjs-interop';
     Skeleton,
   ],
   templateUrl: './yahoo-finance-chart.component.html',
-  styleUrl: './yahoo-finance-chart.component.css'
+  styleUrl: './yahoo-finance-chart.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class YahooFinanceChartComponent {
   private yahooFinance = inject(YahooFinanceService);
   protected supportedRanges = Object.values(YahooFinanceChartRange);
 
-  symbol = input.required<string>();
+  symbol: InputSignal<string> = input.required<string>();
 
   /**
    * A date string. Set `range` to `YahooFinanceChartRange.CUSTOM` to use this.

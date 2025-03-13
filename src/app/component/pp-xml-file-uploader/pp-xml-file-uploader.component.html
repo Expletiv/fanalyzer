@@ -1,22 +1,21 @@
 <p-card class="custom-card">
   <div class="d-flex">
     <div class="d-flex align-items-center me-auto">
-      <p-fileUpload
-        mode="basic"
-        accept=".xml"
-        [chooseIcon]="isPlatformServer(platformId) ?
-        'pi pi-spin pi-spinner'
-        :
-        client() ?
-        'pi pi-check'
-        :
-        'pi pi-upload'"
-        (onSelect)="onFileSelected($event)"
-        fileLimit="1"
-        [maxFileSize]="40 * 1024 * 1024"
-        chooseLabel="Upload XML"
-        [auto]="true"
-      ></p-fileUpload>
+      <div>
+
+        <p-button
+          label="Upload XML"
+          icon="pi pi-upload"
+          (click)="fileInput.click()"
+        ></p-button>
+        <input
+          #fileInput
+          class="d-none"
+          type="file"
+          accept=".xml"
+          (change)="onFileSelected($event)"
+        />
+      </div>
       <p-button icon="pi pi-question"
                 size="small"
                 class="ms-1"
