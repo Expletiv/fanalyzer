@@ -1,0 +1,23 @@
+{
+  order cache before reverse_proxy
+
+  cache {
+    allowed_http_verbs GET HEAD POST
+    key {
+      hash
+    }
+    ttl 30m
+    stale 5m
+  }
+}
+
+{$SERVER_NAME:localhost} {
+  route /api/yahoo-finance {
+    cache
+    reverse_proxy ssr-server:4200
+  }
+
+  route * {
+    reverse_proxy ssr-server:4200
+  }
+}

@@ -1,0 +1,10 @@
+.vscode
+.idea
+.husky
+.angular
+
+node_modules
+dist
+config
+
+README.md

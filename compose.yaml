@@ -1,8 +1,16 @@
 services:
-  web:
-    container_name: web
-    image: ${IMAGES_PREFIX:-}app-web
-    restart: unless-stopped
-    environment:
-      SERVER_NAME: fanalyzer.localhost
+  caddy:
+    container_name: fanalyzer-caddy
+    volumes:
+      - ./config/dev/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - ssr-server
 
+  ssr-server:
+    container_name: fanalyzer-ssr-server
+
+volumes:
+  caddy_data:
+  caddy_config:

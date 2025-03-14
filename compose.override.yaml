@@ -1,10 +1,17 @@
 # Development environment override
 services:
-  web:
+  caddy:
+    build:
+      context: .
+      target: caddy_dev
+    environment:
+      SERVER_NAME: fanalyzer-dev.localhost
+    ports:
+      - "443:443"
+
+  ssr-server:
     build:
       context: .
       target: app_dev
     volumes:
       - ./:/app
-    ports:
-      - "443:4200"

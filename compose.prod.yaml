@@ -1,6 +1,6 @@
 services:
   caddy:
-    container_name: caddy
+    container_name: fanalyzer-caddy
     build:
       context: .
       target: caddy_prod
@@ -20,23 +20,19 @@ services:
         published: 443
         protocol: udp
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./config/prod/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
       - ssr-server
 
   ssr-server:
-    container_name: ssr-server
+    container_name: fanalyzer-ssr-server
     build:
       context: .
       target: app_prod
     environment:
       NODE_ENV: production
-    ports:
-      - target: 4000
-        published: 4000
-        protocol: tcp
 
 volumes:
   caddy_data:

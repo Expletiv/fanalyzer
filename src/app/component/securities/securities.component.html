@@ -2,7 +2,7 @@
   <!--  We have to skip hydration until this issue is fixed: https://github.com/angular/angular/issues/50543-->
 }
 <p-table [value]="client()?.securities ?? []" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]"
-         [loading]="!client() || isHydrating()" [globalFilterFields]="['name', 'isin', 'wkn', 'symbol', 'note']"
+         [loading]="!client() || isHydrating()" [globalFilterFields]="['name', 'isin', 'wkn', 'tickerSymbol', 'note']"
          sortField="name" dataKey="isin" ngSkipHydration #securitiesTable>
   <ng-template pTemplate="caption">
     <div class="d-flex justify-content-between">
