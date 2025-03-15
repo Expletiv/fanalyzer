@@ -6,8 +6,8 @@ import {
   ResourceRef,
   Signal
 } from '@angular/core';
-import { PpClientService } from '../../service/pp-client.service';
-import { Security } from '../../types/portfolio-performance';
+import { PpClientService } from '../../../../service/pp-client.service';
+import { Security } from '../../../../types/portfolio-performance';
 import { TableModule } from 'primeng/table';
 import { Message } from 'primeng/message';
 import { IconField } from 'primeng/iconfield';
@@ -16,11 +16,12 @@ import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { Skeleton } from 'primeng/skeleton';
 import { RouterLink } from '@angular/router';
-import { YahooFinanceService } from '../../service/yahoo-finance.service';
+import { YahooFinanceService } from '../../../../service/yahoo-finance.service';
 import { forkJoin, map, Observable, of } from 'rxjs';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, PercentPipe } from '@angular/common';
 import { Tag } from 'primeng/tag';
+import { XmlMissingMessageComponent } from '../../../util/xml-missing-message/xml-missing-message.component';
 
 @Component({
   selector: 'app-securities',
@@ -36,6 +37,7 @@ import { Tag } from 'primeng/tag';
     CurrencyPipe,
     PercentPipe,
     Tag,
+    XmlMissingMessageComponent,
   ],
   templateUrl: './securities.component.html',
   styleUrl: './securities.component.css',
@@ -47,7 +49,6 @@ export class SecuritiesComponent {
 
   protected _securities: Signal<Security[] | undefined> = this.ppClientService.getData('securities');
   protected isHydrating: Signal<boolean> = this.ppClientService.isHydrating();
-  protected isXmlUploaded: Signal<boolean> = this.ppClientService.isXmlUploaded();
   protected hydrationRequest: ResourceRef<(Security & {
     price?: number,
     marketChange?: number,

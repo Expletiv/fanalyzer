@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MenubarComponent } from './menubar.component';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { routes } from '../../app.routes';
+import { routes } from '../../../app.routes';
 
 describe('MenubarComponent', () => {
   let component: MenubarComponent;

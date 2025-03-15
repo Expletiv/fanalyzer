@@ -9,7 +9,7 @@ import {
   Signal,
 } from '@angular/core';
 import { UIChart } from 'primeng/chart';
-import { YahooFinanceService } from '../../service/yahoo-finance.service';
+import { YahooFinanceService } from '../../../service/yahoo-finance.service';
 import { ChartData, ChartOptions } from 'chart.js';
 import 'chartjs-adapter-luxon';
 import { DateTime } from 'luxon';
@@ -17,7 +17,7 @@ import { ProgressBar } from 'primeng/progressbar';
 import { Card } from 'primeng/card';
 import { Tab, TabList, Tabs } from 'primeng/tabs';
 import { Skeleton } from 'primeng/skeleton';
-import { YahooFinanceChartInterval, YahooFinanceChartRange } from '../../types/yahoo-finance';
+import { YahooFinanceChartInterval, YahooFinanceChartRange } from '../../../types/yahoo-finance';
 import { match } from 'ts-pattern';
 import { rxResource } from '@angular/core/rxjs-interop';
 

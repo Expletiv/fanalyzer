@@ -97,10 +97,4 @@
     </tr>
   </ng-template>
 </p-table>
-
-@defer (on immediate) {
-  @if (!isXmlUploaded()) {
-    <p-message severity="info">Please upload your XML file to view data.</p-message>
-  }
-} @placeholder (minimum 500) {
-}
+<app-xml-missing-message></app-xml-missing-message>

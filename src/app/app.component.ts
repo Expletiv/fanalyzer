@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { MenubarComponent } from './component/menubar/menubar.component';
-import { PpXmlFileUploaderComponent } from './component/pp-xml-file-uploader/pp-xml-file-uploader.component';
+import { MenubarComponent } from './component/main/menubar/menubar.component';
+import { PpXmlFileUploaderComponent } from './component/util/pp-xml-file-uploader/pp-xml-file-uploader.component';
 import { RouterOutlet } from '@angular/router';
 
 @Component({

@@ -3,7 +3,7 @@ import { Menubar } from 'primeng/menubar';
 import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
-import { ThemeService } from '../../service/theme.service';
+import { ThemeService } from '../../../service/theme.service';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
@@ -41,6 +41,7 @@ export class MenubarComponent implements OnInit {
           {
             label: 'Deposits',
             icon: 'pi pi-warehouse',
+            routerLink: ['/accounts'],
           },
           {
             label: 'Securities',

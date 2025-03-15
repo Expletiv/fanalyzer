@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, Signal } from '@angular/core';
 import { XMLParser } from 'fast-xml-parser';
 import { Button } from 'primeng/button';
-import { ClientData } from '../../types/portfolio-performance';
+import { ClientData } from '../../../types/portfolio-performance';
 import { Popover } from 'primeng/popover';
 import { Card } from 'primeng/card';
-import { PpClientService } from '../../service/pp-client.service';
+import { PpClientService } from '../../../service/pp-client.service';
 import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ProgressBar } from 'primeng/progressbar';

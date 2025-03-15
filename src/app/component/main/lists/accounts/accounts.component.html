@@ -1,0 +1,69 @@
+<p-table [value]="accounts()" [paginator]="true" [rows]="15"
+         [rowsPerPageOptions]="[15, 30, 50]"
+         [loading]="!this._accounts()"
+         [globalFilterFields]="['name', 'currencyCode', 'isRetired', 'transactionCount', 'updatedAt']"
+         dataKey="id" ngSkipHydration #accountsTable>
+  <ng-template pTemplate="caption">
+    <div class="d-flex justify-content-between">
+      <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="accountsTable.clear()"/>
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          #searchInput
+          pInputText
+          type="text"
+          (input)="accountsTable.filterGlobal(searchInput.value, 'contains')"
+          placeholder="Search..."
+        />
+      </p-iconfield>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSortableColumn="name">
+        Name
+        <p-sortIcon field="name"></p-sortIcon>
+        <p-columnFilter type="text" field="name" display="menu"/>
+      </th>
+      <th pSortableColumn="currencyCode">
+        Currency
+        <p-sortIcon field="currencyCode"></p-sortIcon>
+        <p-columnFilter type="text" field="currencyCode" display="menu"/>
+      </th>
+      <th pSortableColumn="isRetired">
+        Retired
+        <p-sortIcon field="isRetired"></p-sortIcon>
+        <p-columnFilter type="boolean" field="isRetired" display="menu"/>
+      </th>
+      <th pSortableColumn="transactionCount">
+        Transaction Count
+        <p-sortIcon field="transactionCount"></p-sortIcon>
+        <p-columnFilter type="numeric" field="transactionCount" display="menu"/>
+      </th>
+      <th pSortableColumn="updatedAt">
+        Last Updated
+        <p-sortIcon field="updatedAt"></p-sortIcon>
+        <p-columnFilter type="date" field="updatedAt" display="menu"></p-columnFilter>
+      </th>
+      <th [style.width]="10"></th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-account>
+    <tr>
+      <td>{{ account.name }}</td>
+      <td>{{ account.currencyCode }}</td>
+      <td>
+        <p-tag [severity]="account.isRetired ? 'warn' : 'info'">{{ account.isRetired ? 'YES' : 'NO' }}</p-tag>
+      </td>
+      <td>{{ account.transactionCount }}</td>
+      <td>{{ account.updatedAt | date:'mediumDate' }}</td>
+      <td>
+        <p-button icon="pi pi-search" [rounded]="true" [outlined]="true"
+                  [routerLink]="['/account', account.id]"></p-button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+<app-xml-missing-message></app-xml-missing-message>

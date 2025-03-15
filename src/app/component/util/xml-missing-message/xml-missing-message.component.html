@@ -1,0 +1,6 @@
+@defer (on immediate) {
+  @if (!isXmlUploaded()) {
+    <p-message severity="info">Please upload your XML file to view data.</p-message>
+  }
+} @placeholder (minimum 500) {
+}
