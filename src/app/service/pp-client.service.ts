@@ -61,7 +61,13 @@ export class PpClientService {
     return toSignal(this.client$, {requireSync: true});
   }
 
-  getData(): Signal<ClientData | undefined> {
+  getData(): Signal<ClientData | undefined>
+  getData<T extends keyof ClientData>(field?: T): Signal<ClientData[T] | undefined>
+  getData<T extends keyof ClientData>(field?: T): Signal<ClientData | ClientData[T] | undefined> {
+    if (field) {
+      return toSignal(this.client$.pipe(map(client => client.data?.[field])));
+    }
+
     return toSignal(this.client$.pipe(map(client => client.data)));
   }
 

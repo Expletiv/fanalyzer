@@ -36,6 +36,7 @@ export function app(): express.Express {
       const result = await match(method)
         .with('search', () => yahooFinance.search(...(args as Parameters<typeof yahooFinance.search>)))
         .with('chart', () => yahooFinance.chart(...(args as Parameters<typeof yahooFinance.chart>)))
+        .with('quoteSummary', () => yahooFinance.quoteSummary(...(args as Parameters<typeof yahooFinance.quoteSummary>)))
         .otherwise(() => Promise.reject(new Error(`Unknown method: ${method}`)));
 
       res.json(result);

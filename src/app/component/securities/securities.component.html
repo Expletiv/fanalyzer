@@ -1,9 +1,11 @@
 @if (false) {
   <!--  We have to skip hydration until this issue is fixed: https://github.com/angular/angular/issues/50543-->
 }
-<p-table [value]="client()?.securities ?? []" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[15, 30, 50]"
-         [loading]="!client() || isHydrating()" [globalFilterFields]="['name', 'isin', 'wkn', 'tickerSymbol', 'note']"
-         sortField="name" dataKey="isin" ngSkipHydration #securitiesTable>
+<p-table [value]="securities()" [paginator]="true" [rows]="15"
+         [rowsPerPageOptions]="[15, 30, 50]"
+         [loading]="!this._securities()"
+         [globalFilterFields]="['name', 'isin', 'wkn', 'tickerSymbol', 'note']"
+         dataKey="isin" ngSkipHydration #securitiesTable>
   <ng-template pTemplate="caption">
     <div class="d-flex justify-content-between">
       <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="securitiesTable.clear()"/>
@@ -43,7 +45,16 @@
         <p-sortIcon field="tickerSymbol"></p-sortIcon>
         <p-columnFilter type="text" field="tickerSymbol" display="menu"/>
       </th>
-      <th>Note</th>
+      <th pSortableColumn="price">
+        Price
+        <p-sortIcon field="price"></p-sortIcon>
+        <p-columnFilter type="numeric" field="price" display="menu" currency="USD"></p-columnFilter>
+      </th>
+      <th pSortableColumn="marketChange">
+        Change
+        <p-sortIcon field="marketChange"></p-sortIcon>
+        <p-columnFilter type="numeric" field="marketChange" display="menu"></p-columnFilter>
+      </th>
       <th [style.width]="10"></th>
     </tr>
   </ng-template>
@@ -59,11 +70,29 @@
           {{ security.tickerSymbol }}
         }
       </td>
-      <td>{{ security.note }}</td>
       <td>
-          <p-button icon="pi pi-search" [rounded]="true" [outlined]="true" [disabled]="security.tickerSymbol === undefined"
-                    [routerLink]="['/security', security.tickerSymbol]">
-          </p-button>
+        @if (hydrationRequest.isLoading()) {
+          <p-skeleton width="4rem"></p-skeleton>
+        } @else {
+          {{ (security.price ?? '') | currency: security.priceCurrency ?? '' }}
+        }
+      </td>
+      <td>
+        @if (hydrationRequest.isLoading()) {
+          <p-skeleton width="4rem"></p-skeleton>
+        } @else {
+          @if (security.marketChange !== undefined) {
+            <p-tag [value]="(security.marketChange | percent:'.0-2' )?? ''"
+                   [severity]="security.marketChange > 0 ? 'success' : 'danger'"
+                   [icon]="security.marketChange > 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'">
+            </p-tag>
+          }
+        }
+      </td>
+      <td>
+        <p-button icon="pi pi-search" [rounded]="true" [outlined]="true"
+                  [disabled]="security.tickerSymbol === undefined" [routerLink]="['/security', security.tickerSymbol]">
+        </p-button>
       </td>
     </tr>
   </ng-template>

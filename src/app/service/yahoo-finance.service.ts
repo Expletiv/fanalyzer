@@ -15,7 +15,7 @@ export class YahooFinanceService {
     TArgs extends YahooFinanceParams<TMethod>,
     TResult extends Awaited<YahooFinanceResult<TMethod, TArgs>>>
   (method: TMethod, ...args: TArgs): Observable<TResult> {
-    return this.httpClient.post<TResult>('api/yahoo-finance', {method, args});
+    return this.httpClient.post<TResult>('api/yahoo-finance', {method, args}).pipe(take(1));
   }
 
   findSymbolByIsin(isin: string): Observable<string | undefined> {
@@ -35,7 +35,6 @@ export class YahooFinanceService {
 
           return undefined;
         }),
-        take(1)
       );
   }
 }

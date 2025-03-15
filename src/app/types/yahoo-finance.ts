@@ -75,6 +75,7 @@ export function createOverloadedFn<T extends (...args: any[]) => any>(fn: T) {
 interface YahooFinanceMethodMap {
   search: OverloadUnion<typeof yahooFinance.search>;
   chart: OverloadUnion<typeof yahooFinance.chart>;
+  quoteSummary: OverloadUnion<typeof yahooFinance.quoteSummary>
 }
 export type YahooFinanceMethod = keyof YahooFinanceMethodMap;
 export type YahooFinanceParams<T extends YahooFinanceMethod> = YahooFinanceMethodMap[T]['args'];
