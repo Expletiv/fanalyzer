@@ -11,7 +11,7 @@
   }
 }
 
-{$SERVER_NAME:localhost} {
+http://:80 {
   route /api/yahoo-finance {
     cache
     reverse_proxy ssr-server:4000

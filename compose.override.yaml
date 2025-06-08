@@ -4,10 +4,10 @@ services:
     build:
       context: .
       target: caddy_dev
-    environment:
-      SERVER_NAME: fanalyzer-dev.localhost
+    volumes:
+      - ./config/dev:/etc/caddy
     ports:
-      - "443:443"
+      - "4200:80"
 
   ssr-server:
     build:
