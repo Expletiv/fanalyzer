@@ -1,8 +1,14 @@
 <p-card class="custom-card">
-  <div class="flex">
-    <div class="flex items-center mr-auto">
+  <div class="flex flex-nowrap gap-3 justify-between">
+    <div class="flex items-center gap-1">
+      <p-button icon="pi pi-question"
+                size="small"
+                styleClass="rounded-pill"
+                [outlined]="true"
+                severity="secondary"
+                (click)="op.toggle($event)"
+      ></p-button>
       <div>
-
         <p-button
           label="Upload XML"
           icon="pi pi-upload"
@@ -16,23 +22,13 @@
           (change)="onFileSelected($event)"
         />
       </div>
-      <p-button icon="pi pi-question"
-                size="small"
-                class="ml-1"
-                styleClass="rounded-pill"
-                [outlined]="true"
-                severity="secondary"
-                (click)="op.toggle($event)"
-      ></p-button>
     </div>
-    <div class="flex">
-      <p-button
-        label="Download JSON"
-        icon="pi pi-download"
-        (onClick)="onDownload()"
-        [disabled]="!client()"
-      ></p-button>
-    </div>
+    <p-button
+      label="Download JSON"
+      icon="pi pi-download"
+      (onClick)="onDownload()"
+      [disabled]="!client()"
+    ></p-button>
   </div>
   @if (isHydrating()) {
     <div class="progress-wrapper">
