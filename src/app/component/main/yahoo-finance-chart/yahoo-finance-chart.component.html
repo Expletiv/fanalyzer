@@ -1,6 +1,6 @@
 <p-card>
   <div class="chart-container">
-    <div [class.overlay]="chartData.isLoading()" [class.d-none]="!chartData.isLoading()">
+    <div [class.overlay]="chartData.isLoading()" [class.hidden]="!chartData.isLoading()">
       <p-progress-bar mode="indeterminate" [style]="{ height: '6px' }"></p-progress-bar>
     </div>
     <p-tabs [(value)]="range">

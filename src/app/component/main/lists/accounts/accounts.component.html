@@ -4,7 +4,7 @@
          [globalFilterFields]="['name', 'currencyCode', 'isRetired', 'transactionCount', 'updatedAt']"
          dataKey="id" ngSkipHydration #accountsTable>
   <ng-template pTemplate="caption">
-    <div class="d-flex justify-content-between">
+    <div class="flex justify-between">
       <p-button [outlined]="true" icon="pi pi-filter-slash" label="Clear" (click)="accountsTable.clear()"/>
       <p-iconfield iconPosition="left">
         <p-inputicon>

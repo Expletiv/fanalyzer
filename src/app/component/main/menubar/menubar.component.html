@@ -3,7 +3,7 @@
 }
 <p-menubar [model]="items" ngSkipHydration>
   <ng-template pTemplate="end">
-    <div class="d-flex">
+    <div class="flex">
       <p-button
         (onClick)="themeService.toggleTheme()"
         [icon]="(themeService.isDarkMode$ | async) ? 'pi pi-moon' : 'pi pi-sun'">

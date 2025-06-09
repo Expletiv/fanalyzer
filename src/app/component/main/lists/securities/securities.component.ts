@@ -9,7 +9,6 @@ import {
 import { PpClientService } from '../../../../service/pp-client.service';
 import { Security } from '../../../../types/portfolio-performance';
 import { TableModule } from 'primeng/table';
-import { Message } from 'primeng/message';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
@@ -27,7 +26,6 @@ import { XmlMissingMessageComponent } from '../../../util/xml-missing-message/xm
   selector: 'app-securities',
   imports: [
     TableModule,
-    Message,
     IconField,
     InputIcon,
     InputText,
